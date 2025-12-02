@@ -1,5 +1,5 @@
 function hideSidebar() {
-    const sidebar = document.querySelector('#secondary');
+    const sidebar = document.querySelector('#related');
     if (sidebar) {
         sidebar.style.display = "none";
     }
