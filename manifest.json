@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Clean Sidebar",
+  "version": "1.0",
+  "description": "Hide YouTube right-side video recommendations.",
+  "permissions": ["scripting", "tabs"],
+  "content_scripts": [
+    {
+      "matches": ["*://www.youtube.com/*"],
+      "js": ["content.js"],
+      "css": ["style.css"]
+    }
+  ]
+}

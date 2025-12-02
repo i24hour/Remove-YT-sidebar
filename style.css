@@ -1,0 +1,16 @@
+#secondary,
+#related-chips {
+    display: none !important;
+}
+
+/* Expand the video player container to full width */
+#primary {
+    max-width: 100% !important;
+    flex: 1 !important;
+}
+
+/* Ensure the main container takes up available space */
+ytd-watch-flexy[flexy] #primary.ytd-watch-flexy {
+    max-width: 100% !important;
+    min-width: 0 !important;
+}
