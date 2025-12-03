@@ -2,6 +2,11 @@
 
 **Last Updated:** December 4, 2025
 
+## Purpose
+
+This extension was created for **educational purposes**, specifically to help students (under 18) focus on their studies by removing distractions. By allowing users to control their viewing experience, we aim to ensure that YouTube remains a valuable educational resource accessible to everyone, including children, without the need for restrictive shutdowns or censorship.
+
+
 ## Data Collection
 
 The **YouTube Clean Sidebar** extension is designed to respect your privacy.
