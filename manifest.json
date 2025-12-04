@@ -1,33 +1,14 @@
 {
-    "manifest_version": 3,
-    "name": "YouTube Clean Sidebar",
-    "version": "1.0",
-    "description": "Hide YouTube right-side video recommendations.",
-    "permissions": [
-        "scripting",
-        "tabs",
-        "storage",
-        "idle",
-        "windows",
-        "alarms"
-    ],
-    "background": {
-        "service_worker": "background.js"
-    },
-    "action": {
-        "default_popup": "popup.html"
-    },
-    "content_scripts": [
-        {
-            "matches": [
-                "*://www.youtube.com/*"
-            ],
-            "js": [
-                "content.js"
-            ],
-            "css": [
-                "style.css"
-            ]
-        }
-    ]
+  "manifest_version": 3,
+  "name": "YouTube Clean Sidebar",
+  "version": "1.0",
+  "description": "Hide YouTube right-side video recommendations.",
+  "permissions": ["scripting", "tabs"],
+  "content_scripts": [
+    {
+      "matches": ["*://www.youtube.com/*"],
+      "js": ["content.js"],
+      "css": ["style.css"]
+    }
+  ]
 }
