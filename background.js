@@ -38,8 +38,8 @@ async function endSession() {
     const endTime = Date.now();
     const durationMs = endTime - sessionToSave.startTime;
 
-    // Only save significant sessions (> 1 second)
-    if (durationMs > 1000) {
+    // Save ALL sessions, even short ones
+    if (durationMs > 0) {
         const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
         const key = `sessions-${today}`;
 
@@ -56,7 +56,7 @@ async function endSession() {
             const sessions = result[key] || [];
             sessions.push(sessionData);
             await chrome.storage.local.set({ [key]: sessions });
-            console.log("Saved session:", sessionData);
+            console.log(`Saved session (${durationMs}ms):`, sessionToSave.title);
         } catch (e) {
             console.error("Failed to save session:", e);
         }
