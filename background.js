@@ -32,8 +32,11 @@ function startSession(tab) {
 async function endSession() {
     if (!currentSession) return;
 
+    const sessionToSave = currentSession;
+    currentSession = null; // Atomic clear
+
     const endTime = Date.now();
-    const durationMs = endTime - currentSession.startTime;
+    const durationMs = endTime - sessionToSave.startTime;
 
     // Only save significant sessions (> 1 second)
     if (durationMs > 1000) {
@@ -41,9 +44,9 @@ async function endSession() {
         const key = `sessions-${today}`;
 
         const sessionData = {
-            url: currentSession.url,
-            title: currentSession.title,
-            startTime: currentSession.startTime,
+            url: sessionToSave.url,
+            title: sessionToSave.title,
+            startTime: sessionToSave.startTime,
             endTime: endTime,
             durationMs: durationMs
         };
@@ -58,19 +61,36 @@ async function endSession() {
             console.error("Failed to save session:", e);
         }
     }
+}
 
-    currentSession = null;
+// --- Sequential Execution Queue ---
+let stateChangeChain = Promise.resolve();
+
+function queueStateChange() {
+    stateChangeChain = stateChangeChain.then(handleStateChange).catch(err => {
+        console.error("State change error:", err);
+    });
 }
 
 async function handleStateChange() {
     await endSession();
 
     // Get current active tab and window state
+    // Use a slight delay to allow browser state to settle (e.g. window focus)
+    await new Promise(resolve => setTimeout(resolve, 100));
+
     const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-    const window = tab ? await chrome.windows.get(tab.windowId) : null;
+
+    // Double check if tab is still valid and active
+    if (!tab || !tab.active) {
+        console.log("Tracking paused (no active tab)");
+        return;
+    }
+
+    const window = await chrome.windows.get(tab.windowId);
     const idleState = await new Promise(resolve => chrome.idle.queryState(60, resolve));
 
-    if (tab && window && window.focused && idleState === 'active') {
+    if (window && window.focused && idleState === 'active') {
         startSession(tab);
     } else {
         console.log("Tracking paused (idle/inactive/no tab)");
@@ -78,15 +98,15 @@ async function handleStateChange() {
 }
 
 // Listeners
-chrome.tabs.onActivated.addListener(handleStateChange);
+chrome.tabs.onActivated.addListener(queueStateChange);
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     // Check for URL change OR status complete
     if ((changeInfo.status === 'complete' || changeInfo.url) && tab.active) {
-        handleStateChange();
+        queueStateChange();
     }
 });
-chrome.windows.onFocusChanged.addListener(handleStateChange);
-chrome.idle.onStateChanged.addListener(handleStateChange);
+chrome.windows.onFocusChanged.addListener(queueStateChange);
+chrome.idle.onStateChanged.addListener(queueStateChange);
 
 
 // --- Reporting Logic ---
