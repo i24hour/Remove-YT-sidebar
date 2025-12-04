@@ -80,7 +80,8 @@ async function handleStateChange() {
 // Listeners
 chrome.tabs.onActivated.addListener(handleStateChange);
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (changeInfo.status === 'complete' && tab.active) {
+    // Check for URL change OR status complete
+    if ((changeInfo.status === 'complete' || changeInfo.url) && tab.active) {
         handleStateChange();
     }
 });
@@ -153,11 +154,21 @@ async function generateAndSendReport(dateString) {
     // Aggregate by URL
     const summary = {};
     sessions.forEach(session => {
-        // Normalize URL to avoid duplicates (optional, keeping simple for now)
-        const url = session.url;
+        // Normalize URL: Strip hash and query params for cleaner grouping (optional: keep query?)
+        // User specifically asked to fix Gmail fragmentation which is hash-based.
+        // Let's strip hash.
+        let url = session.url;
+        try {
+            const urlObj = new URL(session.url);
+            url = urlObj.origin + urlObj.pathname + urlObj.search; // Keep search, remove hash
+        } catch (e) {
+            // Fallback if URL parsing fails
+            url = session.url.split('#')[0];
+        }
+
         if (!summary[url]) {
             summary[url] = {
-                title: session.title,
+                title: session.title, // Keep the last title seen for this URL
                 durationMs: 0,
                 url: url
             };
@@ -174,7 +185,9 @@ async function generateAndSendReport(dateString) {
     sortedItems.forEach(item => {
         const hours = Math.floor(item.durationMs / 3600000);
         const minutes = Math.floor((item.durationMs % 3600000) / 60000);
-        const timeStr = `${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m`;
+        const seconds = Math.floor((item.durationMs % 60000) / 1000);
+
+        const timeStr = `${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s`;
 
         body += `${timeStr} - ${item.title} (${item.url})\n`;
     });
