@@ -129,8 +129,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             try {
                 await endSession(); // Save current session first
                 const today = new Date().toISOString().split('T')[0];
-                const success = await generateAndSendReport(today);
-                sendResponse({ success: success });
+                const result = await generateAndSendReport(today);
+                sendResponse(result);
             } catch (e) {
                 console.error("Manual report error:", e);
                 sendResponse({ success: false, error: e.toString() });
@@ -147,7 +147,7 @@ async function generateAndSendReport(dateString) {
 
     if (sessions.length === 0) {
         console.log(`No sessions found for ${dateString}. Skipping report.`);
-        return false;
+        return { success: false, error: "No activity recorded for today yet." };
     }
 
     // Aggregate by URL
@@ -184,7 +184,7 @@ async function generateAndSendReport(dateString) {
     // Send to Webhook
     if (WEBHOOK_URL === "YOUR_WEBHOOK_URL_GOES_HERE") {
         console.error("Webhook URL not configured!");
-        return false;
+        return { success: false, error: "Webhook URL not configured in background.js" };
     }
 
     try {
@@ -200,13 +200,18 @@ async function generateAndSendReport(dateString) {
         const text = await response.text();
         console.log("Webhook response:", text);
 
+        if (!response.ok) {
+            return { success: false, error: `Server error: ${response.status} ${response.statusText}` };
+        }
+
         // Optional: Clear old data to save space
         // await chrome.storage.local.remove(key); // Keeping data for now in case of manual re-send
 
-        return true;
+        return { success: true };
 
     } catch (e) {
         console.error("Failed to send report:", e);
-        return false;
+        return { success: false, error: "Network error: " + e.message };
     }
 }
+

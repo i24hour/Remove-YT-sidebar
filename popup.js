@@ -18,7 +18,7 @@ document.getElementById('sendBtn').addEventListener('click', () => {
             statusDiv.textContent = "Report sent successfully!";
             statusDiv.className = "success";
         } else {
-            statusDiv.textContent = "Failed to send report. Check console.";
+            statusDiv.textContent = "Failed: " + (response.error || "Unknown error");
             statusDiv.className = "error";
         }
     });
