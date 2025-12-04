@@ -1,7 +1,7 @@
 // background.js
 
 // --- Configuration ---
-const WEBHOOK_URL = "YOUR_WEBHOOK_URL_GOES_HERE"; // User must replace this
+const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzETquxNw1Cda02LJUFhecrB2nNRkMdKQvJU5_zkX0rfFPQhhxwkCJx5dmbK5GAVhCRfA/exec"; // User must replace this
 const ALARM_NAME = "daily_report_check";
 const CHECK_INTERVAL_MINUTES = 15;
 
@@ -122,6 +122,24 @@ async function checkAndSendReport() {
     }
 }
 
+// --- Message Listener for Manual Trigger ---
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === "send_report_now") {
+        (async () => {
+            try {
+                await endSession(); // Save current session first
+                const today = new Date().toISOString().split('T')[0];
+                const success = await generateAndSendReport(today);
+                sendResponse({ success: success });
+            } catch (e) {
+                console.error("Manual report error:", e);
+                sendResponse({ success: false, error: e.toString() });
+            }
+        })();
+        return true; // Keep channel open for async response
+    }
+});
+
 async function generateAndSendReport(dateString) {
     const key = `sessions-${dateString}`;
     const result = await chrome.storage.local.get([key]);
@@ -129,7 +147,7 @@ async function generateAndSendReport(dateString) {
 
     if (sessions.length === 0) {
         console.log(`No sessions found for ${dateString}. Skipping report.`);
-        return;
+        return false;
     }
 
     // Aggregate by URL
@@ -166,7 +184,7 @@ async function generateAndSendReport(dateString) {
     // Send to Webhook
     if (WEBHOOK_URL === "YOUR_WEBHOOK_URL_GOES_HERE") {
         console.error("Webhook URL not configured!");
-        return;
+        return false;
     }
 
     try {
@@ -183,9 +201,12 @@ async function generateAndSendReport(dateString) {
         console.log("Webhook response:", text);
 
         // Optional: Clear old data to save space
-        await chrome.storage.local.remove(key);
+        // await chrome.storage.local.remove(key); // Keeping data for now in case of manual re-send
+
+        return true;
 
     } catch (e) {
         console.error("Failed to send report:", e);
+        return false;
     }
 }

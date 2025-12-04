@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      width: 250px;
+      padding: 15px;
+      font-family: sans-serif;
+      text-align: center;
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 16px;
+    }
+    button {
+      background-color: #4285f4;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #357ae8;
+    }
+    #status {
+      margin-top: 15px;
+      font-size: 12px;
+      color: #666;
+    }
+    .success { color: green !important; }
+    .error { color: red !important; }
+  </style>
+</head>
+<body>
+  <h2>Daily Activity Tracker</h2>
+  <p style="font-size: 12px; color: #666; margin-bottom: 15px;">
+    Click below to send today's report immediately.
+  </p>
+  <button id="sendBtn">Send Report Now</button>
+  <div id="status"></div>
+  <script src="popup.js"></script>
+</body>
+</html>
