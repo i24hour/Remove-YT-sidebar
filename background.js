@@ -1,9 +1,24 @@
 // background.js
 
-// --- Configuration ---
-const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzETquxNw1Cda02LJUFhecrB2nNRkMdKQvJU5_zkX0rfFPQhhxwkCJx5dmbK5GAVhCRfA/exec"; // User must replace this
+// --- Configuration (loaded from config.json) ---
+let WEBHOOK_URL = "";
+let SECRET_TOKEN = "";
 const ALARM_NAME = "daily_report_check";
 const CHECK_INTERVAL_MINUTES = 15;
+
+// Load config from file
+async function loadConfig() {
+    try {
+        const response = await fetch(chrome.runtime.getURL('config.json'));
+        const config = await response.json();
+        WEBHOOK_URL = config.WEBHOOK_URL || "";
+        SECRET_TOKEN = config.SECRET_TOKEN || "";
+        console.log("Config loaded successfully");
+    } catch (e) {
+        console.error("Failed to load config.json:", e);
+    }
+}
+loadConfig();
 
 // --- State ---
 let currentSession = null; // { url, title, startTime }
@@ -199,8 +214,18 @@ async function generateAndSendReport(dateString) {
     // Sort by duration desc
     const sortedItems = Object.values(summary).sort((a, b) => b.durationMs - a.durationMs);
 
+    // Get user info
+    const userData = await chrome.storage.local.get(['userName', 'userEmail', 'userPhone']);
+    const userName = userData.userName || 'Unknown';
+    const userEmail = userData.userEmail || 'Not logged in';
+    const userPhone = userData.userPhone || 'N/A';
+
     // Build text body
     let body = `Daily browsing report for ${dateString}\n\n`;
+    body += `Name: ${userName}\n`;
+    body += `Email: ${userEmail}\n`;
+    body += `Phone: ${userPhone}\n`;
+    body += `-----------------------------------\n\n`;
 
     sortedItems.forEach(item => {
         const hours = Math.floor(item.durationMs / 3600000);
@@ -211,6 +236,15 @@ async function generateAndSendReport(dateString) {
 
         body += `${timeStr} - ${item.title} (${item.url})\n`;
     });
+
+    // Calculate and add total time
+    const totalMs = sortedItems.reduce((sum, item) => sum + item.durationMs, 0);
+    const totalHours = Math.floor(totalMs / 3600000);
+    const totalMinutes = Math.floor((totalMs % 3600000) / 60000);
+    const totalSeconds = Math.floor((totalMs % 60000) / 1000);
+    const totalTimeStr = `${totalHours.toString().padStart(2, '0')}h ${totalMinutes.toString().padStart(2, '0')}m ${totalSeconds.toString().padStart(2, '0')}s`;
+
+    body += `\n-----------------------------------\nTOTAL TIME: ${totalTimeStr}\n`;
 
     console.log("Sending report:", body);
 
@@ -225,6 +259,7 @@ async function generateAndSendReport(dateString) {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
+                token: SECRET_TOKEN,
                 date: dateString,
                 body: body
             })
