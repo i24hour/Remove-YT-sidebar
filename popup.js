@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Show user info
     const userInfoDiv = document.getElementById('userInfo');
     const displayName = authData.userName || authData.userEmail || 'User';
-    userInfoDiv.innerHTML = `👤 ${displayName}`;
+    userInfoDiv.innerHTML = displayName;
     userInfoDiv.classList.remove('hidden');
 });
 

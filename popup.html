@@ -2,6 +2,7 @@
 <html>
 
 <head>
+  <meta charset="UTF-8">
   <style>
     * {
       box-sizing: border-box;
@@ -13,46 +14,63 @@
       width: 280px;
       padding: 20px;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #faf9f6;
     }
 
     .container {
       background: white;
-      border-radius: 12px;
+      border-radius: 16px;
       padding: 20px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid #eee;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .logo span {
+      font-size: 32px;
     }
 
     h2 {
       text-align: center;
-      color: #333;
-      margin-bottom: 8px;
+      color: #1a1a2e;
+      margin-bottom: 16px;
       font-size: 16px;
+      font-weight: 700;
+    }
+
+    h2 span {
+      color: #4f46e5;
     }
 
     .user-info {
       text-align: center;
       font-size: 13px;
-      color: #333;
-      margin-bottom: 12px;
-      padding: 10px;
-      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
-      border-radius: 8px;
+      color: #1a1a2e;
+      margin-bottom: 16px;
+      padding: 12px;
+      background: #faf9f6;
+      border-radius: 10px;
       font-weight: 500;
+      border: 1px solid #e5e5e5;
     }
 
     p {
       font-size: 12px;
       color: #666;
-      margin-bottom: 15px;
+      margin-bottom: 16px;
       text-align: center;
+      line-height: 1.4;
     }
 
     button {
       width: 100%;
       padding: 12px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
@@ -60,13 +78,14 @@
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #4f46e5;
       color: white;
     }
 
     .btn-primary:hover {
+      background: #4338ca;
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
     }
 
     .btn-primary:disabled {
@@ -76,33 +95,33 @@
     }
 
     .btn-logout {
-      background: #eee;
-      color: #666;
+      background: #f59e0b;
+      color: white;
       margin-top: 10px;
       font-size: 12px;
-      padding: 8px;
+      padding: 10px;
     }
 
     .btn-logout:hover {
-      background: #ddd;
+      background: #d97706;
     }
 
     #status {
       margin-top: 12px;
       font-size: 12px;
       text-align: center;
-      padding: 8px;
-      border-radius: 6px;
+      padding: 10px;
+      border-radius: 8px;
     }
 
     .success {
-      background: #d4edda;
-      color: #155724;
+      background: #d1fae5;
+      color: #065f46;
     }
 
     .error {
-      background: #f8d7da;
-      color: #721c24;
+      background: #fee2e2;
+      color: #991b1b;
     }
 
     .hidden {
@@ -113,10 +132,11 @@
 
 <body>
   <div class="container">
-    <h2>📊 Daily Activity Tracker</h2>
+    <div class="logo"><span>iCTrL</span></div>
+    <h2>Daily <span>Activity</span> Tracker</h2>
     <div id="userInfo" class="user-info hidden"></div>
-    <p>Click below to send today's report immediately.</p>
-    <button class="btn-primary" id="sendBtn">Send Report Now</button>
+    <p>Click below to send today's browsing report to your email.</p>
+    <button class="btn-primary" id="sendBtn">Send Report Now →</button>
     <button class="btn-logout" id="logoutBtn">Logout</button>
     <div id="status"></div>
   </div>

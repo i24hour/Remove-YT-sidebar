@@ -32,6 +32,15 @@ document.getElementById('showSignup').addEventListener('click', () => {
     clearStatus();
 });
 
+// Back to sign up from verification
+document.getElementById('backToSignup').addEventListener('click', async () => {
+    // Sign out current user so they can create new account
+    await auth.signOut();
+    verificationSection.classList.remove('show');
+    signupForm.classList.remove('hidden');
+    clearStatus();
+});
+
 // Show status messages
 function showStatus(message, type) {
     statusDiv.textContent = message;
@@ -262,13 +271,48 @@ document.getElementById('resendBtn').addEventListener('click', async () => {
     }
 });
 
-// Check auth state on load
+// Check auth state on load - AUTO LOGIN if already verified
 auth.onAuthStateChanged(async (user) => {
-    if (user && user.emailVerified) {
-        // Already logged in and verified
-        const authData = await chrome.storage.local.get(['isAuthenticated']);
-        if (authData.isAuthenticated) {
+    if (user) {
+        // Reload to get latest emailVerified status
+        await user.reload();
+
+        if (user.emailVerified) {
+            // User is logged in AND verified - fetch data and redirect!
+            console.log("User verified, auto-signing in...");
+
+            // Get user data from Firestore
+            let userName = '';
+            let userPhone = '';
+
+            try {
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    userName = userData.name || '';
+                    userPhone = userData.phone || '';
+                }
+            } catch (e) {
+                console.warn('Firestore fetch failed:', e);
+            }
+
+            // Save to local storage
+            await chrome.storage.local.set({
+                userName: userName,
+                userPhone: userPhone,
+                userEmail: user.email,
+                userId: user.uid,
+                isAuthenticated: true
+            });
+
+            // Redirect to main popup
             window.location.href = 'popup.html';
+        } else {
+            // User exists but NOT verified - show verification section
+            signupForm.classList.add('hidden');
+            loginForm.classList.add('hidden');
+            verificationSection.classList.add('show');
         }
     }
+    // If no user, show signup form (default state)
 });
