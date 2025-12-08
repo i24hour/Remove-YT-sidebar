@@ -1,40 +1,78 @@
-# YouTube Clean Sidebar Extension
+# iCTrL - Daily Activity Tracker
 
-A simple Chrome extension that hides the right-side video recommendations (sidebar) and related chips on YouTube watch pages, allowing for a distraction-free viewing experience.
+A Chrome extension that **hides YouTube distractions** (sidebar & recommendations) and **tracks your daily browsing activity** with automatic email reports.
 
-## Features
+## ✨ Features
 
-- **Hides Sidebar**: Removes the `#secondary` column containing video suggestions.
-- **Hides Related Chips**: Removes the `#related-chips` filter bar.
-- **Expands Player**: Automatically expands the video player to fill the available width.
-- **Lightweight**: Uses a simple content script and CSS injection.
+### YouTube Cleanup
+- **Hides Sidebar**: Removes the `#related` section containing video suggestions
+- **Hides Related Chips**: Removes the `#related-chips` filter bar
+- **Auto-Expand Player**: Video player fills available width for distraction-free viewing
 
-## Installation
+### Activity Tracking
+- **All Browsing Tracked**: Monitors time spent on every website (not just YouTube)
+- **Smart Session Management**: Handles tab switches, window focus, and idle detection
+- **Aggregated Reports**: Groups URLs intelligently (strips hash fragments to avoid Gmail-style fragmentation)
+- **Precise Duration**: Shows hours, minutes, and seconds for each site
 
-1.  Clone or download this repository.
-2.  Open Chrome and navigate to `chrome://extensions`.
-3.  Enable **Developer mode** in the top right corner.
-4.  Click **Load unpacked**.
-5.  Select the directory where you saved this extension.
+### Authentication
+- **Firebase Auth**: Secure sign-up/sign-in with email verification
+- **Firestore Storage**: User profiles stored in cloud database
+- **Auto Sign-In**: Automatic login after email verification
+- **Local State Sync**: User info cached for offline access
 
-## Usage
+### Email Reports
+- **Daily Reports**: Automatic email summaries at day change
+- **Manual Trigger**: Send report anytime via popup button
+- **Secure Webhook**: Token-validated Google Apps Script backend
 
-Just visit any YouTube video page. The sidebar recommendations should be gone!
+## 🚀 Installation
 
-## Files
+1. Clone or download this repository
+2. Open Chrome and navigate to `chrome://extensions`
+3. Enable **Developer mode** (top right corner)
+4. Click **Load unpacked**
+5. Select the extension directory
 
-- `manifest.json`: Extension configuration.
-- `content.js`: Script to detect and hide elements.
-- `style.css`: Styles to hide elements and adjust layout.
-- `background.js`: Handles activity tracking and daily reporting.
+## ⚙️ Configuration
 
-## Activity Tracker Setup
+### 1. Deploy the Backend
+Follow the instructions in [APPS_SCRIPT.md](APPS_SCRIPT.md) to deploy the Google Apps Script webhook.
 
-This extension includes a daily activity tracker that emails you a summary of your browsing.
+### 2. Configure Credentials
+Edit `config.json` with your settings:
+```json
+{
+    "WEBHOOK_URL": "YOUR_GOOGLE_APPS_SCRIPT_URL",
+    "SECRET_TOKEN": "YOUR_SECRET_TOKEN"
+}
+```
+> **Note**: `config.json` is git-ignored to protect your credentials.
 
-1.  **Deploy the Backend**: Follow the instructions in [APPS_SCRIPT.md](APPS_SCRIPT.md) to deploy the Google Apps Script.
-2.  **Configure Extension**:
-    - Open `background.js`.
-    - Replace `YOUR_WEBHOOK_URL_GOES_HERE` with your Web App URL.
-3.  **Reload**: Reload the extension in `chrome://extensions`.
+### 3. Reload Extension
+Reload the extension in `chrome://extensions`
+
+## 📁 Project Structure
+
+| File | Description |
+|------|-------------|
+| `manifest.json` | Extension configuration (permissions, scripts, etc.) |
+| `content.js` | YouTube sidebar hiding script |
+| `style.css` | Additional CSS for hiding elements |
+| `background.js` | Service worker - activity tracking & reporting |
+| `popup.html/js` | Main popup UI - send reports, logout |
+| `auth.html/js` | Authentication UI - sign up, sign in, email verification |
+| `config.json` | Credentials (webhook URL, secret token) - **git-ignored** |
+| `firebase-*.js` | Firebase SDK bundles (Auth, Firestore) |
+
+## 🔒 Privacy
+
+See [PRIVACY.md](PRIVACY.md) for details on data handling.
+
+## 📋 Usage
+
+1. **First Launch**: Click extension icon → Create account → Verify email
+2. **Daily Use**: Browse normally - all activity is tracked automatically
+3. **View Report**: Click extension icon → "Send Report Now" button
+4. **Logout**: Click "Logout" button in popup
 
